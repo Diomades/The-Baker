@@ -67,7 +67,7 @@ public class CharSprites : MonoBehaviour {
 
         //Set the name of this sprite as the last sprite and return it
         _lastSprite = this.GetComponent<SpriteRenderer>().sprite.name;
-        Debug.Log(_lastSprite);
+        //Debug.Log(_lastSprite);
     }
 }
 

@@ -3,122 +3,200 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MainLoop : MonoBehaviour {
-    public GameObject Char;
-    public Transform IdlePos;
-    public Transform CakePos;
-    public Transform PiePos;
+    public InterfaceManager intMan;
+    public CharController charCont;
 
-    public CharSprites charSprites;
+    public float weekSecs;
 
-    private CharState lastState = CharState.Idle;
-    private CharState curState = CharState.Idle;
+    private float _curPieDesire; //We calculate Desire by treating this as Pie, with Cake being the leftover beneath 1f
+    private float _curCraigApproval;
+    private float _curDadApproval;
+    private float _curHappiness;
+    private int _curWeek;
 
-    // Use this for initialization
-    //Replace Start later with a function called from cutscenes ending
-    void Start()
-    {
-        StartGameplay();
+    private float _happinessMod = 0f;
+
+    private float _dadUnhappy = 0f;
+    private float _craigUnhappy = 0f;
+
+    private bool _isPlaying;
+
+	// Use this for initialization
+	void Start () {
+        //Set our starting values
+        _isPlaying = true;
+        _curHappiness = 0.65f;
+        _curPieDesire = Random.Range(0f, 1f);
+        _curCraigApproval = 0.6f;
+        _curDadApproval = 0.6f;
+        _curWeek = 1;
+
+        //Start everything
+        charCont.CharStart();
+        intMan.UpdateInterface(_curPieDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
+        StartCoroutine(TimeTick());
     }
 
-    void Update()
+    IEnumerator TimeTick()
     {
-        if (curState != CharState.Moving)
+        while (_isPlaying)
         {
-            if (Input.GetKeyUp("a") || Input.GetKeyUp("left"))
-            {
-                //Move to Cake State
-                if (curState == CharState.Idle)
-                {
-                    //SetState(CharState.Cake);
-                    StartCoroutine(MoveTo(CharState.Cake));
-                }
-                //Move to Idle State
-                else if (curState == CharState.Pie)
-                {
-                    //SetState(CharState.Idle);
-                    StartCoroutine(MoveTo(CharState.Idle));
-                }
-                //Being in Cake State does nothing
-            }
-            if (Input.GetKeyUp("d") || Input.GetKeyUp("right"))
-            {
-                //Move to Pie State
-                if (curState == CharState.Idle)
-                {
-                    //SetState(CharState.Pie);
-                    StartCoroutine(MoveTo(CharState.Pie));
-                }
-                //Move to Idle State
-                else if (curState == CharState.Cake)
-                {
-                    //SetState(CharState.Idle);
-                    StartCoroutine(MoveTo(CharState.Idle));
-                }
-                //Being in Pie State does nothing
-            }
-        }        
+            yield return new WaitForSeconds(weekSecs);
+            //Check how we did this past week before defining new desires for the next week
+            UpdateApproval();
+            ChangeDesires();
+            UpdateHappiness();
+            _curWeek++;
+            //Update stats
+            intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+        }
     }
 
-    public void StartGameplay()
+    private void UpdateApproval()
     {
-        Char.transform.position = IdlePos.position;
-        charSprites.ChangeState(CharState.Idle);
-    }
-
-    IEnumerator MoveTo(CharState state)
-    {
-        //Store our last state, note that we're moving
-        lastState = curState;
-        curState = CharState.Moving;
-
-        Vector3 midPos = new Vector3();
-        Vector3 endPos = new Vector3();
-
-        //Figure out our mid position by checking it against our current position and next position
-        switch (state)
+        if (charCont.CurrentState == CharState.Pie)
         {
-            case CharState.Idle:
-                endPos = IdlePos.position;
-                midPos = Vector3.Lerp(Char.transform.position, IdlePos.position, 0.5f);
-                break;
-            case CharState.Pie:
-                endPos = PiePos.position;
-                midPos = Vector3.Lerp(Char.transform.position, PiePos.position, 0.5f);
-                break;
-            case CharState.Cake:
-                endPos = CakePos.position;
-                midPos = Vector3.Lerp(Char.transform.position, CakePos.position, 0.5f);
-                break;
+            //Increase and reset Dad's approval
+            _curDadApproval += 0.05f;
+            _dadUnhappy = 0f;
+            //Begin decreasing Craig's happiness and approval
+            _craigUnhappy += 0.02f;
+            _curCraigApproval -= _craigUnhappy;
+        }
+        else if (charCont.CurrentState == CharState.Cake)
+        {
+            //Increase and reset Craig's approval
+            _curCraigApproval += 0.05f;
+            _craigUnhappy = 0f;
+            //Begin decreasing Dad's happiness and approval
+            _dadUnhappy += 0.02f;
+            _curDadApproval -= _dadUnhappy;
         }
 
-        //Calculations are done, wait a little before our first movement
-        yield return new WaitForSeconds(0.3f);
-
-        //Change our sprite for the Movement state
-        charSprites.ChangeState(curState);
-
-        //If the MidPos is less or more than our current position, rotate the facing direction of the mid frame
-        if (midPos.x < Char.transform.position.x)
+        //Round out our numbers if necessary
+        if (_curDadApproval > 1f)
         {
-            //Face left
-            Char.GetComponent<SpriteRenderer>().flipX = true;
+            _curDadApproval = 1f;
         }
-        //Move to mid point
-        Char.transform.position = midPos;
-
-        //Wait again
-        yield return new WaitForSeconds(1f);
-
-        Char.transform.position = endPos;
-
-        //Fix our state to the actual end state, and flip us back (if we moved left)
-        curState = state;
-        Char.GetComponent<SpriteRenderer>().flipX = false;
-        charSprites.ChangeState(curState);
+        else if (_curDadApproval < 0f)
+        {
+            _curDadApproval = 0f;
+        }
+        if (_curCraigApproval > 1f)
+        {
+            _curCraigApproval = 1f;
+        }
+        else if (_curCraigApproval < 0f)
+        {
+            _curCraigApproval = 0f;
+        }
     }
 
-    public CharState CurrentState()
+    private void ChangeDesires()
     {
-        return curState;
+        float _curCakeDesire = 1f - _curPieDesire;
+
+        if (charCont.CurrentState == CharState.Pie)
+        {
+            if(_curPieDesire > 0.5f)
+            {
+                //Increase Happiness
+                _happinessMod = 0.05f + (_curPieDesire / 100f);
+                //Increase Cake desire
+                _curPieDesire = _curPieDesire - 0.1f;
+            }
+            else if (_curPieDesire > 0.3f)
+            {
+                //I kinda wanted Cake more
+                _happinessMod = 0.02f + (_curPieDesire / 100f);
+            }
+            else
+            {
+                //I wanted Cake but I got Pie
+                _happinessMod = -0.05f - (_curCakeDesire / 100f);
+            }
+        }
+        else if (charCont.CurrentState == CharState.Cake)
+        {
+            if(_curCakeDesire > 0.5f)
+            {
+                //Increase Happiness
+                _happinessMod = 0.05f + ((1f - _curPieDesire) / 100f);
+                //Increase Pie desire
+                _curPieDesire = _curPieDesire + 0.1f;
+            }
+            else if (_curCakeDesire > 0.3f)
+            {
+                //I kinda wanted Pie more
+                _happinessMod = 0.02f + (_curCakeDesire / 100f);
+            }
+            else
+            {
+                //I want Pie but I got Cake
+                _happinessMod = -0.05f - (_curPieDesire / 100f);
+            }
+        }
+        else
+        {
+            _happinessMod = -0.1f;
+        }
+
+        //Go on to randomizing our new desires
+        RandomDesires();
+    }
+
+    private void UpdateHappiness()
+    {
+        //If approval is too low, we become unhappy
+        if (_curDadApproval <= 0.2f || _curCraigApproval <= 0.2f)
+        {
+            _happinessMod = -0.1f;
+        }
+
+        _curHappiness += _happinessMod;
+        Debug.Log(charCont.CurrentState + " " + _curHappiness);
+    }
+
+    private void RandomDesires()
+    {
+        //To change desires, we first toss a coin to see if they have changed (weighted to the current larger desire). 0 is Cake, 1 is Pie.
+        float coinToss = Random.Range(0f, 1f);
+        float desireChange = Mathf.Round(Random.Range(0.2f, 0.5f)* 100f)/100f; //Round to 2 decimal places
+
+        //The closer that _curPieDesire is to 1, the closer it is to being the larger desire
+        if (_curPieDesire > 0.5f)
+        {
+            coinToss = coinToss - (_curPieDesire / 10f);
+        }
+        else
+        {
+            coinToss = coinToss + (_curPieDesire / 10f);
+        }
+
+        //If closer to 1, Pie desire increases. If closer to 0, Cake desire increases.
+        if (coinToss > 0.55f)
+        {
+            Debug.Log("I want Pie more");
+            _curPieDesire = _curPieDesire + desireChange;
+        }
+        else if (coinToss < 0.45f)
+        {
+            Debug.Log("I want Cake more");
+            _curPieDesire = _curPieDesire - desireChange;
+        }
+        else
+        {
+            Debug.Log("My desires haven't changed");
+        }
+
+        //Round out the desire and we're done.
+        if (_curPieDesire > 1f)
+        {
+            _curPieDesire = 1f;
+        }
+        else if (_curPieDesire < 0f)
+        {
+            _curPieDesire = 0f;
+        }
     }
 }
