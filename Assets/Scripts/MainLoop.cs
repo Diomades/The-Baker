@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class MainLoop : MonoBehaviour {
+    public SceneSwapper sceneSwapper;
     public InterfaceManager intMan;
     public CharController charCont;
 
@@ -22,7 +23,8 @@ public class MainLoop : MonoBehaviour {
     private bool _isPlaying;
 
 	// Use this for initialization
-	void Start () {
+	public void StartGame ()
+    {
         //Set our starting values
         _isPlaying = true;
         _curHappiness = 0.65f;
