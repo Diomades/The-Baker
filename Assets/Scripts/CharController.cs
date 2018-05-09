@@ -59,6 +59,11 @@ public class CharController : MonoBehaviour {
         charSprites.ChangeState(CharState.Idle);
     }
 
+    public void CharStop()
+    {
+        charSprites.StopAllCoroutines();
+    }
+
     public void UpdateHappiness(bool iH)
     {
         _isHappy = iH;

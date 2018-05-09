@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum SceneID { Mid1, Mid2, Craig, Dad, Sad, Happy };
+
 public class CutsceneManager : MonoBehaviour {
     public SceneSwapper sceneSwapper;
 
@@ -39,18 +41,52 @@ public class CutsceneManager : MonoBehaviour {
         {
             //We're out of scenes and can start the game
             GoToGameplay();
-            Debug.Log("Cutscenes done!");
         }
         else
         {
             //Start the next cutscene
-            _startCutscenes[_curStartScene].StartCutscene(this);
+            _startCutscenes[_curStartScene].StartCutscene(this, false);
             _curStartScene++;
+        }
+    }
+
+    public void DisplayCutscene(SceneID scene)
+    {
+        switch (scene)
+        {
+            case SceneID.Mid1:
+                midCutscene1.StartCutscene(this, false);
+                break;
+            case SceneID.Mid2:
+                midCutscene2.StartCutscene(this, false);
+                break;
+            case SceneID.Craig:
+                gameOverCraig.StartCutscene(this, true);
+                break;
+            case SceneID.Dad:
+                gameOverDad.StartCutscene(this, true);
+                break;
+            case SceneID.Sad:
+                gameOverSadness.StartCutscene(this, true);
+                break;
+            case SceneID.Happy:
+                endCutscene.StartCutscene(this, true);
+                break;
         }
     }
 
     public void GoToGameplay()
     {
         sceneSwapper.StartGame();
+    }
+
+    public void ContinueGameplay()
+    {
+        sceneSwapper.ContinueGame();
+    }
+
+    public void EndGameplay()
+    {
+        sceneSwapper.GoToMenu();
     }
 }

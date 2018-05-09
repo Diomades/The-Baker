@@ -22,9 +22,12 @@ public class CutsceneController : MonoBehaviour {
     public float delaytoText9;
     public float delaytoText10;
 
-    public void StartCutscene(CutsceneManager man)
+    private bool endGame;
+
+    public void StartCutscene(CutsceneManager man, bool end)
     {
         this.gameObject.SetActive(true);
+        endGame = end;
         _cutsceneManager = man;
 
         _textDelay.Add(_initialTextDelay);
@@ -91,10 +94,20 @@ public class CutsceneController : MonoBehaviour {
             this.gameObject.SetActive(false);
             _cutsceneManager.NextStartScene();
         }
-        else
+        else if (!isStartScene)
         {
-            //The cutscene isn't a starting scene and it's finished, so go to gameplay
-            _cutsceneManager.GoToGameplay();
-        }
+            if (endGame)
+            {
+                //This cutscene triggers the end of the game
+                this.gameObject.SetActive(false);
+                _cutsceneManager.EndGameplay();
+            }
+            else
+            {
+                //The cutscene isn't a starting scene and it's finished, so go to gameplay
+                this.gameObject.SetActive(false);
+                _cutsceneManager.ContinueGameplay();
+            }
+        }        
     }
 }

@@ -46,6 +46,16 @@ public class MainLoop : MonoBehaviour {
         StartCoroutine(TimeTick());
     }
 
+    //This assumes we're returning from a cutscene or the like and do not need to reset anything
+    public void ResumeGame()
+    {
+        _isPlaying = true;
+        charCont.CharStart(_isHappy);
+        intMan.HideWarningInterface();
+        intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+        StartCoroutine(TimeTick());
+    }
+
     IEnumerator TimeTick()
     {
         while (_isPlaying)
@@ -61,29 +71,102 @@ public class MainLoop : MonoBehaviour {
                 UpdateApproval();
                 ChangeDesires();
                 UpdateHappiness();
-                _curWeek++;
-                _weekCount = 0;
-                //Update stats
-                intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
-                //Show warnings if necessary and we aren't currently showing a warning
-                if (!intMan.IsShowingWarning)
+                //If we haven't reached a GameOver state
+                if (!IsGameOver())
                 {
-                    if (_curHappiness <= panicThreshold)
+                    _curWeek++;
+                    _weekCount = 0;
+                    //Update stats
+                    intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+                    if (_curWeek == 53)
                     {
-                        Debug.Log("Showing Happiness warning");
-                        intMan.ShowHappinessWarning();
+                        //We reached the end of the game
+                        StopForScene(SceneID.Happy);
                     }
-                    else if (_curCraigApproval <= panicThreshold)
+                    else if (_curWeek == 34)
                     {
-                        intMan.ShowCraigWarning();
+                        StopForScene(SceneID.Mid2);
                     }
-                    else if (_curDadApproval <= panicThreshold)
+                    else if (_curWeek == 17)
                     {
-                        intMan.ShowDadWarning();
+                        StopForScene(SceneID.Mid1);
                     }
                 }
             }                       
         }
+    }
+
+    private bool IsGameOver()
+    {
+        //Show warnings if necessary and we aren't currently showing a warning
+        if (_curWeek < 50)
+        {
+            if (_curHappiness <= panicThreshold)
+            {
+                if (_curHappiness > 0f && !intMan.IsShowingWarning)
+                {
+                    intMan.ShowHappinessWarning();
+                }
+                else
+                {
+                    //Sadness game over
+                    StopForScene(SceneID.Sad);
+                    return true;
+                }
+            }
+            else if (_curCraigApproval <= panicThreshold)
+            {
+                if (_curCraigApproval > 0f && !intMan.IsShowingWarning)
+                {
+                    intMan.ShowCraigWarning();
+                }
+                else
+                {
+                    //Craig game over
+                    StopForScene(SceneID.Craig);
+                    return true;
+                }
+            }
+            else if (_curDadApproval <= panicThreshold)
+            {
+                if (_curDadApproval > 0f && !intMan.IsShowingWarning)
+                {
+                    intMan.ShowDadWarning();
+                }
+                else
+                {
+                    //Dad game over
+                    StopForScene(SceneID.Dad);
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void StopForScene(SceneID sceneType)
+    {
+        _isPlaying = false;
+        StopAllCoroutines();
+        charCont.CharStop();
+
+        sceneSwapper.CutsceneEvent(sceneType);
+
+        //Pass along orders
+        /*switch (endType)
+        {
+            case SceneID.Mid1:
+            case SceneID.Mid2:
+                sceneSwapper.CutsceneEvent(endType);
+                break;
+            case SceneID.Craig:
+            case SceneID.Dad:
+            case SceneID.Sad:
+            case SceneID.Happy:
+                sceneSwapper.GameEndEvent(endType);
+                break;
+        }*/
     }
 
     private void UpdateApproval()

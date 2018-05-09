@@ -3450,7 +3450,7 @@ MonoBehaviour:
   sceneSwapper: {fileID: 1007696183}
   intMan: {fileID: 1008298020}
   charCont: {fileID: 1008298019}
-  weekLengthInSeconds: 6
+  weekLengthInSeconds: 3
   startHappiness: 0.4
   happinessThreshold: 0.65
   panicThreshold: 0.3
