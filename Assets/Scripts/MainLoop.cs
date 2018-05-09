@@ -12,11 +12,15 @@ public class MainLoop : MonoBehaviour {
     private float _curPieDesire; //We calculate Desire by treating this as Pie, with Cake being the leftover beneath 1f
     private float _curCraigApproval;
     private float _curDadApproval;
+    public float startHappiness;
+    public float happinessThreshold;
     private float _curHappiness;
     private int _curWeek;
 
     private float _happinessMod = 0f;
+    private bool _isHappy;
 
+    public float panicThreshold; //The point at which the player panics
     private float _dadUnhappy = 0f;
     private float _craigUnhappy = 0f;
 
@@ -27,14 +31,16 @@ public class MainLoop : MonoBehaviour {
     {
         //Set our starting values
         _isPlaying = true;
-        _curHappiness = 0.65f;
+        _curHappiness = startHappiness;
         _curPieDesire = Random.Range(0f, 1f);
-        _curCraigApproval = 0.6f;
+        _curCraigApproval = 0.4f;
         _curDadApproval = 0.6f;
         _curWeek = 1;
 
         //Start everything
-        charCont.CharStart();
+        _isHappy = startHappiness > happinessThreshold; //Set isHappy based on our starting happiness and happiness threshold
+        charCont.CharStart(_isHappy);
+        intMan.HideWarningInterface();
         intMan.UpdateInterface(_curPieDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
         StartCoroutine(TimeTick());
     }
@@ -51,6 +57,23 @@ public class MainLoop : MonoBehaviour {
             _curWeek++;
             //Update stats
             intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+            //Show warnings if necessary and we aren't currently showing a warning
+            if (!intMan.IsShowingWarning)
+            {
+                if (_curHappiness <= panicThreshold)
+                {
+                    Debug.Log("Showing Happiness warning");
+                    intMan.ShowHappinessWarning();
+                }
+                else if (_curCraigApproval <= panicThreshold)
+                {
+                    intMan.ShowCraigWarning();
+                }
+                else if (_curDadApproval <= panicThreshold)
+                {
+                    intMan.ShowDadWarning();
+                }
+            }            
         }
     }
 
@@ -156,7 +179,18 @@ public class MainLoop : MonoBehaviour {
         }
 
         _curHappiness += _happinessMod;
-        Debug.Log(charCont.CurrentState + " " + _curHappiness);
+        //If we're happy now but weren't before
+        if(_curHappiness >= 0.6f && !_isHappy)
+        {
+            _isHappy = true;
+            charCont.UpdateHappiness(_isHappy);
+        }
+        //Else if we're unhappy but were happy before
+        else if (_curHappiness < 0.6f && _isHappy)
+        {
+            _isHappy = false;
+            charCont.UpdateHappiness(_isHappy);
+        }
     }
 
     private void RandomDesires()

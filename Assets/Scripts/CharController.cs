@@ -10,8 +10,8 @@ public class CharController : MonoBehaviour {
 
     public CharSprites charSprites;
 
-    private CharState _lastState = CharState.Idle;
     private CharState _curState = CharState.Idle;
+    private bool _isHappy;
 
     void Update()
     {
@@ -52,16 +52,22 @@ public class CharController : MonoBehaviour {
         }        
     }
 
-    public void CharStart()
+    public void CharStart(bool iH)
     {
         Char.transform.position = IdlePos.position;
+        _isHappy = iH;
         charSprites.ChangeState(CharState.Idle);
+    }
+
+    public void UpdateHappiness(bool iH)
+    {
+        _isHappy = iH;
+        charSprites.UpdateHappiness(_isHappy);
     }
 
     IEnumerator MoveTo(CharState state)
     {
         //Store our last state, note that we're moving
-        _lastState = _curState;
         _curState = CharState.Moving;
 
         Vector3 midPos = new Vector3();
