@@ -7,7 +7,8 @@ public class MainLoop : MonoBehaviour {
     public InterfaceManager intMan;
     public CharController charCont;
 
-    public float weekSecs;
+    public float weekLengthInSeconds;
+    private int _weekCount = 0;
 
     private float _curPieDesire; //We calculate Desire by treating this as Pie, with Cake being the leftover beneath 1f
     private float _curCraigApproval;
@@ -49,31 +50,39 @@ public class MainLoop : MonoBehaviour {
     {
         while (_isPlaying)
         {
-            yield return new WaitForSeconds(weekSecs);
-            //Check how we did this past week before defining new desires for the next week
-            UpdateApproval();
-            ChangeDesires();
-            UpdateHappiness();
-            _curWeek++;
-            //Update stats
-            intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
-            //Show warnings if necessary and we aren't currently showing a warning
-            if (!intMan.IsShowingWarning)
+            float curNotch = _weekCount * (1f / 6f);
+            intMan.UpdateDayBar(curNotch);
+            _weekCount++;
+
+            yield return new WaitForSeconds(weekLengthInSeconds / 7);
+            if(_weekCount == 7)
             {
-                if (_curHappiness <= panicThreshold)
+                //Check how we did this past week before defining new desires for the next week
+                UpdateApproval();
+                ChangeDesires();
+                UpdateHappiness();
+                _curWeek++;
+                _weekCount = 0;
+                //Update stats
+                intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+                //Show warnings if necessary and we aren't currently showing a warning
+                if (!intMan.IsShowingWarning)
                 {
-                    Debug.Log("Showing Happiness warning");
-                    intMan.ShowHappinessWarning();
+                    if (_curHappiness <= panicThreshold)
+                    {
+                        Debug.Log("Showing Happiness warning");
+                        intMan.ShowHappinessWarning();
+                    }
+                    else if (_curCraigApproval <= panicThreshold)
+                    {
+                        intMan.ShowCraigWarning();
+                    }
+                    else if (_curDadApproval <= panicThreshold)
+                    {
+                        intMan.ShowDadWarning();
+                    }
                 }
-                else if (_curCraigApproval <= panicThreshold)
-                {
-                    intMan.ShowCraigWarning();
-                }
-                else if (_curDadApproval <= panicThreshold)
-                {
-                    intMan.ShowDadWarning();
-                }
-            }            
+            }                       
         }
     }
 

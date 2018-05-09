@@ -9,6 +9,7 @@ public class InterfaceManager : MonoBehaviour {
     public Slider dadBar;
     public Slider craigBar;
     public Slider happinessBar;
+    public Slider dayBar;
 
     public Text weekText;
 
@@ -28,6 +29,11 @@ public class InterfaceManager : MonoBehaviour {
         happinessBar.value = happiness;
 
         weekText.text = "Week " + week;
+    }
+
+    public void UpdateDayBar(float notch)
+    {
+        dayBar.value = notch;
     }
 
     public void HideWarningInterface()

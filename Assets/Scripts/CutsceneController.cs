@@ -20,6 +20,7 @@ public class CutsceneController : MonoBehaviour {
     public float delaytoText7;
     public float delaytoText8;
     public float delaytoText9;
+    public float delaytoText10;
 
     public void StartCutscene(CutsceneManager man)
     {
@@ -35,6 +36,7 @@ public class CutsceneController : MonoBehaviour {
         _textDelay.Add(delaytoText7);
         _textDelay.Add(delaytoText8);
         _textDelay.Add(delaytoText9);
+        _textDelay.Add(delaytoText10);
 
         foreach (Transform child in transform)
         {

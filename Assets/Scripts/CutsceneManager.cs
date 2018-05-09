@@ -15,9 +15,11 @@ public class CutsceneManager : MonoBehaviour {
     public CutsceneController midCutscene1;
     public CutsceneController midCutscene2;
 
-    public CutsceneController endCutscene1;
-    public CutsceneController endCutscene2;
-    public CutsceneController endCutscene3;
+    public CutsceneController gameOverCraig;
+    public CutsceneController gameOverDad;
+    public CutsceneController gameOverSadness;
+
+    public CutsceneController endCutscene;
 
     public void OpeningCutscenes()
     {
