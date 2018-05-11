@@ -28,7 +28,7 @@ public class MainLoop : MonoBehaviour {
     private bool _isPlaying;
 
 	// Use this for initialization
-	public void StartGame ()
+	public void StartGame (Camera cam)
     {
         //Set our starting values
         _isPlaying = true;
@@ -40,7 +40,7 @@ public class MainLoop : MonoBehaviour {
 
         //Start everything
         _isHappy = startHappiness > happinessThreshold; //Set isHappy based on our starting happiness and happiness threshold
-        charCont.CharStart(_isHappy);
+        charCont.CharStart(_isHappy, cam);
         intMan.HideWarningInterface();
         intMan.UpdateInterface(_curPieDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
         StartCoroutine(TimeTick());
@@ -50,7 +50,7 @@ public class MainLoop : MonoBehaviour {
     public void ResumeGame()
     {
         _isPlaying = true;
-        charCont.CharStart(_isHappy);
+        charCont.CharContinue(_isHappy);
         intMan.HideWarningInterface();
         intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
         StartCoroutine(TimeTick());
