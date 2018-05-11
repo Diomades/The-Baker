@@ -3414,6 +3414,9 @@ MonoBehaviour:
   CakePos: {fileID: 702241301}
   PiePos: {fileID: 856251768}
   charSprites: {fileID: 1557422556}
+  animationFrameTime: 0.5
+  startMoveHoldTime: 0.1
+  midMoveHoldTime: 0.5
 --- !u!114 &1008298020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3450,7 +3453,7 @@ MonoBehaviour:
   sceneSwapper: {fileID: 1007696183}
   intMan: {fileID: 1008298020}
   charCont: {fileID: 1008298019}
-  weekLengthInSeconds: 3
+  weekLengthInSeconds: 6
   startHappiness: 0.4
   happinessThreshold: 0.65
   panicThreshold: 0.3
@@ -5187,7 +5190,7 @@ Prefab:
     - target: {fileID: 224530290499772120, guid: 6b48c542276ad3b4c9d11fc70deedc03,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 37
+      value: 33
       objectReference: {fileID: 0}
     - target: {fileID: 224530290499772120, guid: 6b48c542276ad3b4c9d11fc70deedc03,
         type: 2}
@@ -5234,6 +5237,11 @@ Prefab:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 252066943}
+    - target: {fileID: 114828287316517192, guid: 6b48c542276ad3b4c9d11fc70deedc03,
+        type: 2}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SkipButton
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 6b48c542276ad3b4c9d11fc70deedc03, type: 2}
   m_IsPrefabParent: 0

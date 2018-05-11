@@ -10,6 +10,10 @@ public class CharController : MonoBehaviour {
 
     public CharSprites charSprites;
 
+    public float animationFrameTime;
+    public float startMoveHoldTime;
+    public float midMoveHoldTime;
+
     private CharState _curState = CharState.Idle;
     private bool _isHappy;
 
@@ -56,7 +60,8 @@ public class CharController : MonoBehaviour {
     {
         Char.transform.position = IdlePos.position;
         _isHappy = iH;
-        charSprites.ChangeState(CharState.Idle);
+        charSprites.StartCharacter(CharState.Idle, animationFrameTime);
+        //charSprites.ChangeState(CharState.Idle);
     }
 
     public void CharStop()
@@ -96,7 +101,7 @@ public class CharController : MonoBehaviour {
         }
 
         //Calculations are done, wait a little before our first movement
-        yield return new WaitForSeconds(0.1f);
+        yield return new WaitForSeconds(startMoveHoldTime);
 
         //Change our sprite for the Movement state
         charSprites.ChangeState(_curState);
@@ -111,7 +116,7 @@ public class CharController : MonoBehaviour {
         Char.transform.position = midPos;
 
         //Wait again
-        yield return new WaitForSeconds(.9f);
+        yield return new WaitForSeconds(midMoveHoldTime);
 
         Char.transform.position = endPos;
 

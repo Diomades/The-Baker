@@ -19,6 +19,14 @@ public class CharSprites : MonoBehaviour {
     private string _lastSprite;
 
     private bool _doAnimate;
+    private float _animSpeed;
+
+    //Set our animation speed
+    public void StartCharacter(CharState state, float speed)
+    {
+        _animSpeed = speed;
+        ChangeState(state);
+    }
 
     public void ChangeState(CharState state)
     {
@@ -40,7 +48,7 @@ public class CharSprites : MonoBehaviour {
 
     IEnumerator Animate()
     {
-        yield return new WaitForSeconds(0.7f);
+        yield return new WaitForSeconds(_animSpeed);
         ChangeSprite();
     }
 

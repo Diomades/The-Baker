@@ -50,6 +50,15 @@ public class CutsceneController : MonoBehaviour {
         StartCoroutine(DelayedShowText());
     }
 
+    public void UnloadCutscene()
+    {
+        _nextText = 0;
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(false);
+        }
+    }
+
     //Display the next text on demand.
     public void NextText()
     {
