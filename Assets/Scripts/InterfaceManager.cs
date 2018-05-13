@@ -6,8 +6,7 @@ using UnityEngine.UI;
 public enum WarningText { Happiness, Craig, Dad, Pie, Cake };
 
 public class InterfaceManager : MonoBehaviour {
-    public Slider cakeBar;
-    public Slider pieBar;
+    public Slider desireBar;
     public Slider dadBar;
     public Slider craigBar;
     public Slider happinessBar;
@@ -31,10 +30,9 @@ public class InterfaceManager : MonoBehaviour {
 
     private bool _showingWarning = false;
 
-    public void UpdateInterface(float pie, float dad, float craig, float happiness, int week)
+    public void UpdateInterface(float desire, float dad, float craig, float happiness, int week)
     {
-        pieBar.value = pie;
-        cakeBar.value = 1f - pie;
+        desireBar.value = desire;
         dadBar.value = dad;
         craigBar.value = craig;
         happinessBar.value = happiness;

@@ -13,7 +13,7 @@ public class MainLoop : MonoBehaviour {
     public float weekLengthInSeconds;
     private int _weekCount = 0;
 
-    private float _curPieDesire; //We calculate Desire by treating this as Pie, with Cake being the leftover beneath 1f
+    private float _curDesire; //1 is Pie, 0 is Cake
     private float _curCraigApproval;
     private float _curDadApproval;
     public float startHappiness;
@@ -36,7 +36,7 @@ public class MainLoop : MonoBehaviour {
         //Set our starting values
         _isPlaying = true;
         _curHappiness = startHappiness;
-        _curPieDesire = Random.Range(0f, 1f);
+        _curDesire = Random.Range(0f, 1f);
         _curCraigApproval = 0.4f;
         _curDadApproval = 0.6f;
         _curWeek = 1;
@@ -45,7 +45,7 @@ public class MainLoop : MonoBehaviour {
         _isHappy = startHappiness > happinessThreshold; //Set isHappy based on our starting happiness and happiness threshold
         charCont.CharStart(_isHappy, cam);
         intMan.HideWarningInterface();
-        intMan.UpdateInterface(_curPieDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
+        intMan.UpdateInterface(_curDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
         StartCoroutine(TimeTick());
     }
 
@@ -55,7 +55,7 @@ public class MainLoop : MonoBehaviour {
         _isPlaying = true;
         charCont.CharContinue(_isHappy);
         intMan.HideWarningInterface();
-        intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+        intMan.UpdateInterface(_curDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
         StartCoroutine(TimeTick());
     }
 
@@ -80,7 +80,7 @@ public class MainLoop : MonoBehaviour {
                     _curWeek++;
                     _weekCount = 0;
                     //Update stats
-                    intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+                    intMan.UpdateInterface(_curDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
                     if (_curWeek == totalWeeks)
                     {
                         //We reached the end of the game
@@ -218,48 +218,48 @@ public class MainLoop : MonoBehaviour {
 
     private void ChangeDesires()
     {
-        float _curCakeDesire = 1f - _curPieDesire;
+        //float _curCakeDesire = 1f - _curDesire;
 
         if (charCont.CurrentState == CharState.Pie)
         {
-            if(_curPieDesire > 0.5f)
+            if(_curDesire > 0.5f)
             {
                 //Increase Happiness
-                _happinessMod = 0.05f + (_curPieDesire / 20f);
+                _happinessMod = 0.05f + (_curDesire / 20f);
                 //Increase Cake desire
-                _curPieDesire = _curPieDesire - 0.1f;
+                _curDesire = _curDesire - 0.1f;
             }
-            else if (_curPieDesire > 0.3f)
+            else if (_curDesire > 0.3f)
             {
                 //I kinda wanted Cake more
-                _happinessMod = 0.02f + (_curPieDesire / 20f);
+                _happinessMod = 0.02f + (_curDesire / 20f);
             }
             else
             {
                 //I wanted Cake but I got Pie
                 intMan.ShowWarning(WarningText.Pie);
-                _happinessMod = -0.05f - (_curCakeDesire / 20f);
+                _happinessMod = -0.05f - ((1f - _curDesire) / 20f);
             }
         }
         else if (charCont.CurrentState == CharState.Cake)
         {
-            if(_curCakeDesire > 0.5f)
+            if(_curDesire <= 0.5f)
             {
                 //Increase Happiness
-                _happinessMod = 0.05f + ((1f - _curPieDesire) / 20f);
+                _happinessMod = 0.05f + ((1f - _curDesire) / 20f);
                 //Increase Pie desire
-                _curPieDesire = _curPieDesire + 0.1f;
+                _curDesire = _curDesire + 0.1f;
             }
-            else if (_curCakeDesire > 0.3f)
+            else if (_curDesire < 0.7f)
             {
                 //I kinda wanted Pie more
-                _happinessMod = 0.02f + (_curCakeDesire / 20f);
+                _happinessMod = 0.02f + ((1f - _curDesire) / 20f);
             }
             else
             {
                 //I wanted Pie but I got Cake
                 intMan.ShowWarning(WarningText.Cake);
-                _happinessMod = -0.05f - (_curPieDesire / 20f);
+                _happinessMod = -0.05f - (_curDesire / 20f);
             }
         }
         else
@@ -301,25 +301,25 @@ public class MainLoop : MonoBehaviour {
         float desireChange = Mathf.Round(Random.Range(0.2f, 0.5f)* 100f)/100f; //Round to 2 decimal places
 
         //The closer that _curPieDesire is to 1, the closer it is to being the larger desire
-        if (_curPieDesire > 0.5f)
+        if (_curDesire > 0.5f)
         {
-            coinToss = coinToss - (_curPieDesire / 10f);
+            coinToss = coinToss - (_curDesire / 10f);
         }
         else
         {
-            coinToss = coinToss + (_curPieDesire / 10f);
+            coinToss = coinToss + (_curDesire / 10f);
         }
 
         //If closer to 1, Pie desire increases. If closer to 0, Cake desire increases.
         if (coinToss > 0.55f)
         {
             Debug.Log("I want Pie more");
-            _curPieDesire = _curPieDesire + desireChange;
+            _curDesire = _curDesire + desireChange;
         }
         else if (coinToss < 0.45f)
         {
             Debug.Log("I want Cake more");
-            _curPieDesire = _curPieDesire - desireChange;
+            _curDesire = _curDesire - desireChange;
         }
         else
         {
@@ -327,13 +327,13 @@ public class MainLoop : MonoBehaviour {
         }
 
         //Round out the desire and we're done.
-        if (_curPieDesire > 1f)
+        if (_curDesire > 1f)
         {
-            _curPieDesire = 1f;
+            _curDesire = 1f;
         }
-        else if (_curPieDesire < 0f)
+        else if (_curDesire < 0f)
         {
-            _curPieDesire = 0f;
+            _curDesire = 0f;
         }
     }
 }

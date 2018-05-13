@@ -3880,8 +3880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 033fa8a5d0a9cd649bed8518ea82f1c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  cakeBar: {fileID: 2117902917}
-  pieBar: {fileID: 1487983851}
+  desireBar: {fileID: 663325341}
   dadBar: {fileID: 127528714}
   craigBar: {fileID: 12034365}
   happinessBar: {fileID: 169566893}

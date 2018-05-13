@@ -79,37 +79,46 @@ public class CutsceneManager : MonoBehaviour {
 
     public void DisplayCutscene(SceneID scene)
     {
+        //We create this variable to modify and send on later
+        bool isEndScene = false;
+
         //Choose which Cutscene is going to play
         switch (scene)
         {
             case SceneID.Mid1:
+                isEndScene = false;
                 _curActiveScene = midCutscene1;
                 //midCutscene1.StartCutscene(this, false);
                 break;
             case SceneID.Mid2:
+                isEndScene = false;
                 _curActiveScene = midCutscene2;
                 //midCutscene2.StartCutscene(this, false);
                 break;
             case SceneID.Craig:
+                isEndScene = true;
                 _curActiveScene = midCutscene1;
                 //gameOverCraig.StartCutscene(this, true);
                 break;
             case SceneID.Dad:
+                isEndScene = true;
                 _curActiveScene = gameOverDad;
                 //gameOverDad.StartCutscene(this, true);
                 break;
             case SceneID.Sad:
+                isEndScene = true;
                 _curActiveScene = gameOverSadness;
                 //gameOverSadness.StartCutscene(this, true);
                 break;
             case SceneID.Happy:
+                isEndScene = true;
                 _curActiveScene = endCutscene;
                 //endCutscene.StartCutscene(this, true);
                 break;
         }
 
         //Launch the selected scene
-        _curActiveScene.StartCutscene(this, true);
+        _curActiveScene.StartCutscene(this, isEndScene);
     }
 
     public void GoToGameplay()
