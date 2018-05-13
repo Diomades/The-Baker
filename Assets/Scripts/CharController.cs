@@ -13,6 +13,8 @@ public class CharController : MonoBehaviour {
 
     public CharSprites charSprites;
 
+    private bool _isPlaying;
+
     public float animationFrameTime;
     public float startMoveHoldTime;
     public float midMoveHoldTime;
@@ -25,45 +27,50 @@ public class CharController : MonoBehaviour {
 
     void Update()
     {
-        if (_curState != CharState.Moving)
+        if (_isPlaying)
         {
-            if (Input.GetKeyUp("a") || Input.GetKeyUp("left"))
+            if (_curState != CharState.Moving)
             {
-                //Move to Cake State
-                if (_curState == CharState.Idle)
+                if (Input.GetKeyUp("a") || Input.GetKeyUp("left"))
                 {
-                    //SetState(CharState.Cake);
-                    StartCoroutine(MoveTo(CharState.Cake));
+                    //Move to Cake State
+                    if (_curState == CharState.Idle)
+                    {
+                        //SetState(CharState.Cake);
+                        StartCoroutine(MoveTo(CharState.Cake));
+                    }
+                    //Move to Idle State
+                    else if (_curState == CharState.Pie)
+                    {
+                        //SetState(CharState.Idle);
+                        StartCoroutine(MoveTo(CharState.Idle));
+                    }
+                    //Being in Cake State does nothing
                 }
-                //Move to Idle State
-                else if (_curState == CharState.Pie)
+                if (Input.GetKeyUp("d") || Input.GetKeyUp("right"))
                 {
-                    //SetState(CharState.Idle);
-                    StartCoroutine(MoveTo(CharState.Idle));
+                    //Move to Pie State
+                    if (_curState == CharState.Idle)
+                    {
+                        //SetState(CharState.Pie);
+                        StartCoroutine(MoveTo(CharState.Pie));
+                    }
+                    //Move to Idle State
+                    else if (_curState == CharState.Cake)
+                    {
+                        //SetState(CharState.Idle);
+                        StartCoroutine(MoveTo(CharState.Idle));
+                    }
+                    //Being in Pie State does nothing
                 }
-                //Being in Cake State does nothing
             }
-            if (Input.GetKeyUp("d") || Input.GetKeyUp("right"))
-            {
-                //Move to Pie State
-                if (_curState == CharState.Idle)
-                {
-                    //SetState(CharState.Pie);
-                    StartCoroutine(MoveTo(CharState.Pie));
-                }
-                //Move to Idle State
-                else if (_curState == CharState.Cake)
-                {
-                    //SetState(CharState.Idle);
-                    StartCoroutine(MoveTo(CharState.Idle));
-                }
-                //Being in Pie State does nothing
-            }
-        }        
+        }              
     }
 
     public void CharStart(bool iH, Camera cam)
     {
+        _isPlaying = true;
+
         //Set the camera's hold position
         _mainCam = cam;
         _camIdlePos = _mainCam.transform.position;
@@ -71,6 +78,7 @@ public class CharController : MonoBehaviour {
         //Set up the sprites
         Char.transform.position = IdlePos.position;
         _isHappy = iH;
+        _curState = CharState.Idle;
         charSprites.StartCharacter(CharState.Idle, animationFrameTime);
         //charSprites.ChangeState(CharState.Idle);
     }
@@ -78,17 +86,21 @@ public class CharController : MonoBehaviour {
     //This function is for when we are continuing the game from a cutscene
     public void CharContinue(bool iH)
     {
+        _isPlaying = true;
+
         //Return the camera to its idle position
         _mainCam.transform.position = _camIdlePos;
 
         //Set up the sprites
         Char.transform.position = IdlePos.position;
         _isHappy = iH;
+        _curState = CharState.Idle;
         charSprites.StartCharacter(CharState.Idle, animationFrameTime);
     }
 
     public void CharStop()
     {
+        _isPlaying = false;
         charSprites.StopAllCoroutines();
     }
 

@@ -25,7 +25,11 @@ public class CutsceneManager : MonoBehaviour {
 
     public CutsceneController endCutscene;
 
-    public void OpeningCutscenes()
+    public GameObject skipButton;
+    public GameObject continueButton;
+    public GameObject menuButton;
+
+    public void StartManager()
     {
         //Add the Start Cutscenes to a list
         _startCutscenes.Add(startCutscene1);
@@ -33,92 +37,155 @@ public class CutsceneManager : MonoBehaviour {
         _startCutscenes.Add(startCutscene3);
         _startCutscenes.Add(startCutscene4);
 
+        //Activate the Skip button
+        ShowSkipButton();
+
         //Start the opening cutscene
         NextStartScene();
     }
 
+    //Skip to the end of the cutscene and show the Continue button
     public void SkipButton()
     {
-        //Unload the current scene
-        _curActiveScene.UnloadCutscene();
+        _curActiveScene.SkipCutscene();
 
-        //If it's an end scene, end gameplay
-        if (_curActiveScene == gameOverCraig || _curActiveScene == gameOverDad || _curActiveScene == gameOverSadness || _curActiveScene == endCutscene)
+        //If the cutscene is an end scene, show the Menu button instead of the Continue button
+        if (_curActiveScene.isEndScene)
         {
-            EndGameplay();
+            ShowMenuButton();
         }
-        //If it's a mid scene, continue gameplay
-        else if (_curActiveScene == midCutscene1 || _curActiveScene == midCutscene2)
-        {
-            ContinueGameplay();
-        }
-        //If it's a start cutscene, go to the gameplay
         else
         {
-            GoToGameplay();
-            _curStartScene = 0;
+            ShowContinueButton();
         }
+    }
+
+    //The Continue button should go to the next scene or to the gameplay
+    public void ContinueButton()
+    {
+        //Figure out our next cutscene if we're in the start of the game
+        if (_curActiveScene.isStartScene)
+        {
+            //Unload the current scene before figuring out if there's another scene
+            _curActiveScene.UnloadCutscene();
+            NextStartScene();
+        }
+        else
+        {
+            //If it's a mid scene, continue gameplay
+            if (_curActiveScene == midCutscene1 || _curActiveScene == midCutscene2)
+            {
+                ContinueGameplay();
+            }
+            //If it's a start cutscene, go to the gameplay
+            else
+            {
+                GoToGameplay();
+                _curStartScene = 0;
+            }
+        }        
+    }
+
+    //The Menu button goes back to the menu and unloads the gameplay
+    public void MenuButton()
+    {
+        sceneSwapper.NewGameMenu();
     }
 
     public void NextStartScene()
     {
         if (_curStartScene >= _startCutscenes.Count)
         {
-            //We're out of scenes and can start the game
-            GoToGameplay();
+            //We've not got anymore scenes to do and can unload it
             _curStartScene = 0;
+            GoToGameplay();
         }
         else
         {
             //Start the next cutscene
             _curActiveScene = _startCutscenes[_curStartScene];
-            _curActiveScene.StartCutscene(this, false);
+            _curActiveScene.StartCutscene(this);
             _curStartScene++;
+            //Show the Skip button again
+            ShowSkipButton();
         }
     }
 
     public void DisplayCutscene(SceneID scene)
     {
         //We create this variable to modify and send on later
-        bool isEndScene = false;
+        //bool isEndScene = false;
 
         //Choose which Cutscene is going to play
         switch (scene)
         {
             case SceneID.Mid1:
-                isEndScene = false;
+                //isEndScene = false;
+                ShowSkipButton();
                 _curActiveScene = midCutscene1;
                 //midCutscene1.StartCutscene(this, false);
                 break;
             case SceneID.Mid2:
-                isEndScene = false;
+                //isEndScene = false;
+                ShowSkipButton();
                 _curActiveScene = midCutscene2;
                 //midCutscene2.StartCutscene(this, false);
                 break;
             case SceneID.Craig:
-                isEndScene = true;
+                //isEndScene = true;
+                ShowSkipButton();
                 _curActiveScene = midCutscene1;
                 //gameOverCraig.StartCutscene(this, true);
                 break;
             case SceneID.Dad:
-                isEndScene = true;
+                //isEndScene = true;
+                ShowSkipButton();
                 _curActiveScene = gameOverDad;
                 //gameOverDad.StartCutscene(this, true);
                 break;
             case SceneID.Sad:
-                isEndScene = true;
+                //isEndScene = true;
+                ShowSkipButton();
                 _curActiveScene = gameOverSadness;
                 //gameOverSadness.StartCutscene(this, true);
                 break;
             case SceneID.Happy:
-                isEndScene = true;
+                //isEndScene = true;
+                ShowSkipButton();
                 _curActiveScene = endCutscene;
                 //endCutscene.StartCutscene(this, true);
                 break;
         }
 
         //Launch the selected scene
-        _curActiveScene.StartCutscene(this, isEndScene);
+        _curActiveScene.StartCutscene(this);
+    }
+
+    //Our scene ended, so pass along a command to change the text appropriately
+    public void SceneEnded()
+    {
+        //sceneSwapper.EndCutscene();
+    }
+
+    public void ShowMenuButton()
+    {
+        skipButton.SetActive(false);
+        menuButton.SetActive(true);
+        continueButton.SetActive(false);
+    }
+
+    public void ShowContinueButton()
+    {
+        skipButton.SetActive(false);
+        menuButton.SetActive(false);
+        continueButton.SetActive(true);
+    }
+
+    public void ShowSkipButton()
+    {
+        skipButton.SetActive(true);
+        menuButton.SetActive(false);
+        continueButton.SetActive(false);
     }
 
     public void GoToGameplay()
@@ -133,6 +200,6 @@ public class CutsceneManager : MonoBehaviour {
 
     public void EndGameplay()
     {
-        sceneSwapper.GoToMenu();
+        sceneSwapper.NewGameMenu();
     }
 }

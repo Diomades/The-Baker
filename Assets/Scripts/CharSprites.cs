@@ -53,7 +53,7 @@ public class CharSprites : MonoBehaviour {
     }
 
     //This only gets run when Happiness has changed and interjects the Coroutine
-    public void ChangeSpriteHappiness(bool iH)
+    /*public void ChangeSpriteHappiness(bool iH)
     {
         _isHappy = iH;
 
@@ -90,7 +90,7 @@ public class CharSprites : MonoBehaviour {
         }
 
         _lastSprite = this.GetComponent<SpriteRenderer>().sprite.name;
-    }
+    }*/
 
     private void ChangeSprite()
     {

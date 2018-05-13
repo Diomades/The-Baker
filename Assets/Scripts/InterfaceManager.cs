@@ -4,11 +4,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public enum WarningText { Happiness, Craig, Dad, Pie, Cake };
+public enum ApprovalLevel { Happy, Neutral, Angry };
 
 public class InterfaceManager : MonoBehaviour {
     public Slider desireBar;
-    public Slider dadBar;
-    public Slider craigBar;
     public Slider happinessBar;
     public Slider dayBar;
 
@@ -28,21 +27,53 @@ public class InterfaceManager : MonoBehaviour {
     public float noticeMoveTime;
     public float noticeFadeTime;
 
+    public Image dadApproval;
+    public Image craigApproval;
+    public Sprite approvalHappy;
+    public Sprite approvalNeutral;
+    public Sprite approvalAngry;
+
+    private GameObject _justMade;
+
     private bool _showingWarning = false;
 
-    public void UpdateInterface(float desire, float dad, float craig, float happiness, int week)
+    public void UpdateInterface(float desire, ApprovalLevel dad, ApprovalLevel craig, float happiness, int week)
     {
         desireBar.value = desire;
-        dadBar.value = dad;
-        craigBar.value = craig;
         happinessBar.value = happiness;
 
+        //Change the sprites based on the Approval Level
+        dadApproval.sprite = ChangeApprovalFace(dad);
+        craigApproval.sprite = ChangeApprovalFace(craig);
+
         weekText.text = "Week " + week;
+    }
+
+    private Sprite ChangeApprovalFace(ApprovalLevel lvl)
+    {
+        switch (lvl)
+        {
+            case ApprovalLevel.Happy:
+                return approvalHappy;
+            case ApprovalLevel.Neutral:
+                return approvalNeutral;
+            case ApprovalLevel.Angry:
+                return approvalAngry;
+        }
+
+        //We should never get here
+        return approvalNeutral;
     }
 
     public void UpdateDayBar(float notch)
     {
         dayBar.value = notch;
+    }
+
+    public void HideBakingNotice()
+    {
+        bakingNotice.SetActive(false);
+        Destroy(_justMade);
     }
 
     public void HideWarningInterface()
@@ -96,22 +127,22 @@ public class InterfaceManager : MonoBehaviour {
     public void MakeNewItem(bool cake)
     {
         //Create a new object
-        GameObject thisMade = Instantiate(bakingNotice, bakingNotice.transform.parent);
-        thisMade.transform.position = bakingNotice.transform.position;
+        _justMade = Instantiate(bakingNotice, bakingNotice.transform.parent);
+        _justMade.transform.position = bakingNotice.transform.position;
 
         //Set the sprite
         if (cake)
         {
-            thisMade.GetComponent<SpriteRenderer>().sprite = cakeSprite;
+            _justMade.GetComponent<SpriteRenderer>().sprite = cakeSprite;
         }
         else
         {
-            thisMade.GetComponent<SpriteRenderer>().sprite = pieSprite;
+            _justMade.GetComponent<SpriteRenderer>().sprite = pieSprite;
         }
 
         //Display the object and start moving it
-        thisMade.SetActive(true);
-        StartCoroutine(MoveJustMade(thisMade));
+        _justMade.SetActive(true);
+        StartCoroutine(MoveJustMade(_justMade));
     }
 
     IEnumerator MoveJustMade(GameObject thisMade)

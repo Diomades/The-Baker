@@ -10,6 +10,7 @@ public class CutsceneController : MonoBehaviour {
     private List<float> _textDelay = new List<float>();
     private int _nextText = 0;
     public bool isStartScene;
+    public bool isEndScene;
 
     private float _initialTextDelay = 1f;
     public float delaytoText2;
@@ -22,12 +23,11 @@ public class CutsceneController : MonoBehaviour {
     public float delaytoText9;
     public float delaytoText10;
 
-    private bool endGame;
+    //private bool _isActive = false;
 
-    public void StartCutscene(CutsceneManager man, bool end)
+    public void StartCutscene(CutsceneManager man)
     {
         this.gameObject.SetActive(true);
-        endGame = end;
         _cutsceneManager = man;
 
         _textDelay.Add(_initialTextDelay);
@@ -50,28 +50,26 @@ public class CutsceneController : MonoBehaviour {
         StartCoroutine(DelayedShowText());
     }
 
+    //This is activated when the player clicks the Skip button
+    public void SkipCutscene()
+    {
+        //Stop any active coroutines
+        StopAllCoroutines();
+        _nextText = 0;
+
+        //Display all cutscene text
+        foreach (Transform child in transform)
+        {
+            child.gameObject.SetActive(true);
+        }
+    }
+
     public void UnloadCutscene()
     {
         _nextText = 0;
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);
-        }
-    }
-
-    //Display the next text on demand.
-    public void NextText()
-    {
-        _sceneText[_nextText].SetActive(true);
-
-        _nextText++;
-        if (NextTextPresent())
-        {
-            StartCoroutine(DelayedShowText());
-        }
-        else
-        {
-            StartCoroutine(DelayedEndScene());
         }
     }
 
@@ -91,12 +89,38 @@ public class CutsceneController : MonoBehaviour {
     IEnumerator DelayedShowText()
     {
         yield return new WaitForSeconds(_textDelay[_nextText]);
-        NextText();
+        //Show the text after a delay
+        ShowText();
     }
 
-    IEnumerator DelayedEndScene()
+    private void ShowText()
     {
-        yield return new WaitForSeconds(_textDelay[_nextText]);
+        _sceneText[_nextText].SetActive(true);
+
+        _nextText++;
+
+        if (NextTextPresent())
+        {
+            StartCoroutine(DelayedShowText());
+        }
+        else
+        {
+            //There's no more text to show, so skip to the next appropriate scene
+            if (isStartScene)
+            {
+                _cutsceneManager.ShowContinueButton();
+            }
+            else
+            {
+                _cutsceneManager.SceneEnded();
+            }
+        }
+    }
+
+    //This is run when the player clicks the "Continue" button
+    /*public void EndScene()
+    {
+        _isActive = false;
         if (isStartScene)
         {
             //Tell the Cutscene Manager to run the next scene
@@ -117,6 +141,6 @@ public class CutsceneController : MonoBehaviour {
                 this.gameObject.SetActive(false);
                 _cutsceneManager.ContinueGameplay();
             }
-        }        
-    }
+        }
+    }*/
 }

@@ -14,8 +14,6 @@ public class MainLoop : MonoBehaviour {
     private int _weekCount = 0;
 
     private float _curDesire; //1 is Pie, 0 is Cake
-    private float _curCraigApproval;
-    private float _curDadApproval;
     public float startHappiness;
     public float happinessThreshold;
     private float _curHappiness;
@@ -25,6 +23,10 @@ public class MainLoop : MonoBehaviour {
     private bool _isHappy;
 
     public float panicThreshold; //The point at which the player panics
+    public float craigApprovalRating;
+    public float dadApprovalRating;
+    public float approvalHappyThreshold; //Above this number the approval is happy
+    public float approvalNeutralThreshold; //Above this number the approval is neutral
     private float _dadUnhappy = 0f;
     private float _craigUnhappy = 0f;
 
@@ -37,15 +39,14 @@ public class MainLoop : MonoBehaviour {
         _isPlaying = true;
         _curHappiness = startHappiness;
         _curDesire = Random.Range(0f, 1f);
-        _curCraigApproval = 0.4f;
-        _curDadApproval = 0.6f;
         _curWeek = 1;
 
         //Start everything
         _isHappy = startHappiness > happinessThreshold; //Set isHappy based on our starting happiness and happiness threshold
         charCont.CharStart(_isHappy, cam);
         intMan.HideWarningInterface();
-        intMan.UpdateInterface(_curDesire,_curDadApproval,_curCraigApproval,_curHappiness, _curWeek);
+        intMan.HideBakingNotice();
+        intMan.UpdateInterface(_curDesire, ApprovalLevelFromFloat(dadApprovalRating), ApprovalLevelFromFloat(craigApprovalRating), _curHappiness, _curWeek);
         StartCoroutine(TimeTick());
     }
 
@@ -55,7 +56,8 @@ public class MainLoop : MonoBehaviour {
         _isPlaying = true;
         charCont.CharContinue(_isHappy);
         intMan.HideWarningInterface();
-        intMan.UpdateInterface(_curDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+        intMan.HideBakingNotice();
+        intMan.UpdateInterface(_curDesire, ApprovalLevelFromFloat(dadApprovalRating), ApprovalLevelFromFloat(craigApprovalRating), _curHappiness, _curWeek);
         StartCoroutine(TimeTick());
     }
 
@@ -80,7 +82,9 @@ public class MainLoop : MonoBehaviour {
                     _curWeek++;
                     _weekCount = 0;
                     //Update stats
-                    intMan.UpdateInterface(_curDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
+                    intMan.UpdateInterface(_curDesire, ApprovalLevelFromFloat(dadApprovalRating), ApprovalLevelFromFloat(craigApprovalRating), _curHappiness, _curWeek);
+
+                    //Check if there's any events
                     if (_curWeek == totalWeeks)
                     {
                         //We reached the end of the game
@@ -117,9 +121,9 @@ public class MainLoop : MonoBehaviour {
                     return true;
                 }
             }
-            else if (_curCraigApproval <= panicThreshold)
+            else if (craigApprovalRating <= panicThreshold)
             {
-                if (_curCraigApproval > 0f && !intMan.IsShowingWarning)
+                if (craigApprovalRating > 0f && !intMan.IsShowingWarning)
                 {
                     intMan.ShowWarning(WarningText.Craig);
                 }
@@ -130,9 +134,9 @@ public class MainLoop : MonoBehaviour {
                     return true;
                 }
             }
-            else if (_curDadApproval <= panicThreshold)
+            else if (dadApprovalRating <= panicThreshold)
             {
-                if (_curDadApproval > 0f && !intMan.IsShowingWarning)
+                if (dadApprovalRating > 0f && !intMan.IsShowingWarning)
                 {
                     intMan.ShowWarning(WarningText.Dad);
                 }
@@ -155,21 +159,6 @@ public class MainLoop : MonoBehaviour {
         charCont.CharStop();
 
         sceneSwapper.CutsceneEvent(sceneType);
-
-        //Pass along orders
-        /*switch (endType)
-        {
-            case SceneID.Mid1:
-            case SceneID.Mid2:
-                sceneSwapper.CutsceneEvent(endType);
-                break;
-            case SceneID.Craig:
-            case SceneID.Dad:
-            case SceneID.Sad:
-            case SceneID.Happy:
-                sceneSwapper.GameEndEvent(endType);
-                break;
-        }*/
     }
 
     private void UpdateApproval()
@@ -179,40 +168,57 @@ public class MainLoop : MonoBehaviour {
             //We made a pie, so tell the Interface Manager to show one
             intMan.MakeNewItem(false);
             //Increase and reset Dad's approval
-            _curDadApproval += 0.05f;
+            dadApprovalRating += 0.05f;
             _dadUnhappy = 0f;
             //Begin decreasing Craig's happiness and approval
             _craigUnhappy += 0.02f;
-            _curCraigApproval -= _craigUnhappy;
+            craigApprovalRating -= _craigUnhappy;
         }
         else if (charCont.CurrentState == CharState.Cake)
         {
             //We made a pie, so tell the Interface Manager to show one
             intMan.MakeNewItem(true);
             //Increase and reset Craig's approval
-            _curCraigApproval += 0.05f;
+            craigApprovalRating += 0.05f;
             _craigUnhappy = 0f;
             //Begin decreasing Dad's happiness and approval
             _dadUnhappy += 0.02f;
-            _curDadApproval -= _dadUnhappy;
+            dadApprovalRating -= _dadUnhappy;
         }
 
         //Round out our numbers if necessary
-        if (_curDadApproval > 1f)
+        if (dadApprovalRating > 1f)
         {
-            _curDadApproval = 1f;
+            dadApprovalRating = 1f;
         }
-        else if (_curDadApproval < 0f)
+        else if (dadApprovalRating < 0f)
         {
-            _curDadApproval = 0f;
+            dadApprovalRating = 0f;
         }
-        if (_curCraigApproval > 1f)
+        if (craigApprovalRating > 1f)
         {
-            _curCraigApproval = 1f;
+            craigApprovalRating = 1f;
         }
-        else if (_curCraigApproval < 0f)
+        else if (craigApprovalRating < 0f)
         {
-            _curCraigApproval = 0f;
+            craigApprovalRating = 0f;
+        }
+    }
+
+    //This takes a given float and compares against stored values to declare a character's mood
+    private ApprovalLevel ApprovalLevelFromFloat(float lvl)
+    {
+        if(lvl >= approvalHappyThreshold)
+        {
+            return ApprovalLevel.Happy;
+        }
+        else if (lvl >= approvalNeutralThreshold)
+        {
+            return ApprovalLevel.Neutral;
+        }
+        else
+        {
+            return ApprovalLevel.Angry;
         }
     }
 
@@ -274,7 +280,7 @@ public class MainLoop : MonoBehaviour {
     private void UpdateHappiness()
     {
         //If approval is too low, we become unhappy
-        if (_curDadApproval <= 0.2f || _curCraigApproval <= 0.2f)
+        if (dadApprovalRating <= 0.2f || craigApprovalRating <= 0.2f)
         {
             _happinessMod = -0.1f;
         }
@@ -291,6 +297,12 @@ public class MainLoop : MonoBehaviour {
         {
             _isHappy = false;
             charCont.UpdateHappiness(_isHappy);
+        }
+
+        //Happiness rounding so we can't go over 100%
+        if (_curHappiness > 1f)
+        {
+            _curHappiness = 1f;
         }
     }
 
