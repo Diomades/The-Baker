@@ -7,6 +7,9 @@ public class MainLoop : MonoBehaviour {
     public InterfaceManager intMan;
     public CharController charCont;
 
+    public int totalWeeks;
+    public int event1Week;
+    public int event2Week;
     public float weekLengthInSeconds;
     private int _weekCount = 0;
 
@@ -78,16 +81,16 @@ public class MainLoop : MonoBehaviour {
                     _weekCount = 0;
                     //Update stats
                     intMan.UpdateInterface(_curPieDesire, _curDadApproval, _curCraigApproval, _curHappiness, _curWeek);
-                    if (_curWeek == 53)
+                    if (_curWeek == totalWeeks)
                     {
                         //We reached the end of the game
                         StopForScene(SceneID.Happy);
                     }
-                    else if (_curWeek == 34)
+                    else if (_curWeek == event2Week)
                     {
                         StopForScene(SceneID.Mid2);
                     }
-                    else if (_curWeek == 17)
+                    else if (_curWeek == event1Week)
                     {
                         StopForScene(SceneID.Mid1);
                     }
@@ -99,13 +102,13 @@ public class MainLoop : MonoBehaviour {
     private bool IsGameOver()
     {
         //Show warnings if necessary and we aren't currently showing a warning
-        if (_curWeek < 50)
+        if (_curWeek < totalWeeks)
         {
             if (_curHappiness <= panicThreshold)
             {
                 if (_curHappiness > 0f && !intMan.IsShowingWarning)
                 {
-                    intMan.ShowHappinessWarning();
+                    intMan.ShowWarning(WarningText.Happiness);
                 }
                 else
                 {
@@ -118,7 +121,7 @@ public class MainLoop : MonoBehaviour {
             {
                 if (_curCraigApproval > 0f && !intMan.IsShowingWarning)
                 {
-                    intMan.ShowCraigWarning();
+                    intMan.ShowWarning(WarningText.Craig);
                 }
                 else
                 {
@@ -131,7 +134,7 @@ public class MainLoop : MonoBehaviour {
             {
                 if (_curDadApproval > 0f && !intMan.IsShowingWarning)
                 {
-                    intMan.ShowDadWarning();
+                    intMan.ShowWarning(WarningText.Dad);
                 }
                 else
                 {
@@ -173,6 +176,8 @@ public class MainLoop : MonoBehaviour {
     {
         if (charCont.CurrentState == CharState.Pie)
         {
+            //We made a pie, so tell the Interface Manager to show one
+            intMan.MakeNewItem(false);
             //Increase and reset Dad's approval
             _curDadApproval += 0.05f;
             _dadUnhappy = 0f;
@@ -182,6 +187,8 @@ public class MainLoop : MonoBehaviour {
         }
         else if (charCont.CurrentState == CharState.Cake)
         {
+            //We made a pie, so tell the Interface Manager to show one
+            intMan.MakeNewItem(true);
             //Increase and reset Craig's approval
             _curCraigApproval += 0.05f;
             _craigUnhappy = 0f;
@@ -218,19 +225,20 @@ public class MainLoop : MonoBehaviour {
             if(_curPieDesire > 0.5f)
             {
                 //Increase Happiness
-                _happinessMod = 0.05f + (_curPieDesire / 100f);
+                _happinessMod = 0.05f + (_curPieDesire / 20f);
                 //Increase Cake desire
                 _curPieDesire = _curPieDesire - 0.1f;
             }
             else if (_curPieDesire > 0.3f)
             {
                 //I kinda wanted Cake more
-                _happinessMod = 0.02f + (_curPieDesire / 100f);
+                _happinessMod = 0.02f + (_curPieDesire / 20f);
             }
             else
             {
                 //I wanted Cake but I got Pie
-                _happinessMod = -0.05f - (_curCakeDesire / 100f);
+                intMan.ShowWarning(WarningText.Pie);
+                _happinessMod = -0.05f - (_curCakeDesire / 20f);
             }
         }
         else if (charCont.CurrentState == CharState.Cake)
@@ -238,19 +246,20 @@ public class MainLoop : MonoBehaviour {
             if(_curCakeDesire > 0.5f)
             {
                 //Increase Happiness
-                _happinessMod = 0.05f + ((1f - _curPieDesire) / 100f);
+                _happinessMod = 0.05f + ((1f - _curPieDesire) / 20f);
                 //Increase Pie desire
                 _curPieDesire = _curPieDesire + 0.1f;
             }
             else if (_curCakeDesire > 0.3f)
             {
                 //I kinda wanted Pie more
-                _happinessMod = 0.02f + (_curCakeDesire / 100f);
+                _happinessMod = 0.02f + (_curCakeDesire / 20f);
             }
             else
             {
-                //I want Pie but I got Cake
-                _happinessMod = -0.05f - (_curPieDesire / 100f);
+                //I wanted Pie but I got Cake
+                intMan.ShowWarning(WarningText.Cake);
+                _happinessMod = -0.05f - (_curPieDesire / 20f);
             }
         }
         else

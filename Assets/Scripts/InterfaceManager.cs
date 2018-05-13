@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum WarningText { Happiness, Craig, Dad, Pie, Cake };
+
 public class InterfaceManager : MonoBehaviour {
     public Slider cakeBar;
     public Slider pieBar;
@@ -17,8 +19,17 @@ public class InterfaceManager : MonoBehaviour {
     public GameObject CraigWarning;
     public GameObject DadWarning;
     public GameObject HappinessWarning;
+    public GameObject CakeWarning;
+    public GameObject PieWarning;
 
-    private bool _showingWarning;
+    public Sprite cakeSprite;
+    public Sprite pieSprite;
+    public GameObject bakingNotice;
+    public float noticeMoveDistance;
+    public float noticeMoveTime;
+    public float noticeFadeTime;
+
+    private bool _showingWarning = false;
 
     public void UpdateInterface(float pie, float dad, float craig, float happiness, int week)
     {
@@ -38,48 +49,41 @@ public class InterfaceManager : MonoBehaviour {
 
     public void HideWarningInterface()
     {
-        _showingWarning = false;
-
         WarningTextBox.SetActive(false);
         CraigWarning.SetActive(false);
         DadWarning.SetActive(false);
         HappinessWarning.SetActive(false);
-
-        StartCoroutine(ShowWarning());
+        CakeWarning.SetActive(false);
+        PieWarning.SetActive(false);
     }
 
-    public void ShowCraigWarning()
+    public void ShowWarning(WarningText warning)
     {
+        //Hide everything first
+        HideWarningInterface();
+
+        //Set stuff to start showing
         _showingWarning = true;
-
         WarningTextBox.SetActive(true);
-        CraigWarning.SetActive(true);
-        DadWarning.SetActive(false);
-        HappinessWarning.SetActive(false);
 
-        StartCoroutine(ShowWarning());
-    }
-
-    public void ShowDadWarning()
-    {
-        _showingWarning = true;
-
-        WarningTextBox.SetActive(true);
-        CraigWarning.SetActive(false);
-        DadWarning.SetActive(true);
-        HappinessWarning.SetActive(false);
-
-        StartCoroutine(ShowWarning());
-    }
-
-    public void ShowHappinessWarning()
-    {
-        _showingWarning = true;
-
-        WarningTextBox.SetActive(true);
-        CraigWarning.SetActive(false);
-        DadWarning.SetActive(false);
-        HappinessWarning.SetActive(true);
+        switch (warning)
+        {
+            case WarningText.Happiness:
+                HappinessWarning.SetActive(true);
+                break;
+            case WarningText.Craig:
+                CraigWarning.SetActive(true);
+                break;
+            case WarningText.Dad:
+                DadWarning.SetActive(true);
+                break;
+            case WarningText.Cake:
+                CakeWarning.SetActive(true);
+                break;
+            case WarningText.Pie:
+                PieWarning.SetActive(true);
+                break;
+        }
 
         StartCoroutine(ShowWarning());
     }
@@ -88,6 +92,69 @@ public class InterfaceManager : MonoBehaviour {
     {
         yield return new WaitForSeconds(5f);
         HideWarningInterface();
+        _showingWarning = false;
+    }
+
+    public void MakeNewItem(bool cake)
+    {
+        //Create a new object
+        GameObject thisMade = Instantiate(bakingNotice, bakingNotice.transform.parent);
+        thisMade.transform.position = bakingNotice.transform.position;
+
+        //Set the sprite
+        if (cake)
+        {
+            thisMade.GetComponent<SpriteRenderer>().sprite = cakeSprite;
+        }
+        else
+        {
+            thisMade.GetComponent<SpriteRenderer>().sprite = pieSprite;
+        }
+
+        //Display the object and start moving it
+        thisMade.SetActive(true);
+        StartCoroutine(MoveJustMade(thisMade));
+    }
+
+    IEnumerator MoveJustMade(GameObject thisMade)
+    {
+        //Track the time
+        float time = 0f;
+        //Get the starting position from the actual camera and not the idle position
+        Vector3 start = thisMade.transform.localPosition;
+        Vector3 target = start;
+        target.y += noticeMoveDistance;
+
+        bool fadeOut = false;
+
+        //Move the object while we have time remaining
+        while (time < noticeMoveTime)
+        {
+            //Start fading out
+            if(time >= noticeMoveTime/3 && !fadeOut)
+            {
+                fadeOut = true;
+                StartCoroutine(FadeOutJustMade(thisMade));
+            }
+
+            time += Time.deltaTime;
+            thisMade.transform.localPosition = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 0.8f, time));
+            yield return null;
+        }
+    }
+
+    IEnumerator FadeOutJustMade(GameObject thisMade)
+    {
+        //Track the time
+        float time = 0f;
+        while (time < noticeFadeTime)
+        {
+            time += Time.deltaTime;
+            thisMade.GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, Mathf.Lerp(1f, 0f, time));
+            yield return null;
+        }
+
+        Destroy(thisMade);
     }
 
     public bool IsShowingWarning

@@ -191,7 +191,7 @@ public class CharController : MonoBehaviour {
         while (time < cameraMoveTime)
         {
             time += Time.deltaTime;
-            _mainCam.transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, cameraMoveDistance, time));
+            _mainCam.transform.position = Vector3.Lerp(start, target, Mathf.SmoothStep(0f, 0.5f, time));
             yield return null;
         }
     }
