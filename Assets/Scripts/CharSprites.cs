@@ -50,6 +50,11 @@ public class CharSprites : MonoBehaviour {
     {
         yield return new WaitForSeconds(_animSpeed);
         ChangeSprite();
+        /*while (_doAnimate)
+        {
+            yield return new WaitForSeconds(_animSpeed);
+            ChangeSprite();
+        }*/
     }
 
     //This only gets run when Happiness has changed and interjects the Coroutine
@@ -97,6 +102,7 @@ public class CharSprites : MonoBehaviour {
         switch (_curState)
         {
             case CharState.Idle:
+                _doAnimate = true;
                 if (_lastSprite == idleSprite1H.name || _lastSprite == idleSprite1S.name)
                 {
                     if (_isHappy)
@@ -123,6 +129,7 @@ public class CharSprites : MonoBehaviour {
                 StartCoroutine(Animate());
                 break;
             case CharState.Moving:
+                _doAnimate = false;
                 if (_isHappy)
                 {
                     this.GetComponent<SpriteRenderer>().sprite = walkSpriteH;
@@ -134,6 +141,7 @@ public class CharSprites : MonoBehaviour {
                 break;
             case CharState.Pie:
             case CharState.Cake:
+                _doAnimate = true;
                 if (_lastSprite == bakingSprite1.name)
                 {
                     this.GetComponent<SpriteRenderer>().sprite = bakingSprite2;
@@ -148,6 +156,7 @@ public class CharSprites : MonoBehaviour {
 
         //Set the name of this sprite as the last sprite and return it
         _lastSprite = this.GetComponent<SpriteRenderer>().sprite.name;
+        //StartCoroutine(Animate());
         //Debug.Log(_lastSprite);
     }
 }

@@ -22,6 +22,8 @@ public class MainLoop : MonoBehaviour {
     private float _happinessMod = 0f;
     private bool _isHappy;
 
+    public float approvalIncrease;
+    public float approvalDecrease;
     public float panicThreshold; //The point at which the player panics
     public float craigApprovalRating;
     public float dadApprovalRating;
@@ -54,6 +56,7 @@ public class MainLoop : MonoBehaviour {
     public void ResumeGame()
     {
         _isPlaying = true;
+        _weekCount = 0;
         charCont.CharContinue(_isHappy);
         intMan.HideWarningInterface();
         intMan.HideBakingNotice();
@@ -168,10 +171,11 @@ public class MainLoop : MonoBehaviour {
             //We made a pie, so tell the Interface Manager to show one
             intMan.MakeNewItem(false);
             //Increase and reset Dad's approval
-            dadApprovalRating += 0.05f;
+            dadApprovalRating += approvalIncrease;
             _dadUnhappy = 0f;
             //Begin decreasing Craig's happiness and approval
-            _craigUnhappy += 0.02f;
+            //This stacks over time!
+            _craigUnhappy += approvalDecrease;
             craigApprovalRating -= _craigUnhappy;
         }
         else if (charCont.CurrentState == CharState.Cake)
@@ -179,10 +183,11 @@ public class MainLoop : MonoBehaviour {
             //We made a pie, so tell the Interface Manager to show one
             intMan.MakeNewItem(true);
             //Increase and reset Craig's approval
-            craigApprovalRating += 0.05f;
+            craigApprovalRating += approvalIncrease;
             _craigUnhappy = 0f;
             //Begin decreasing Dad's happiness and approval
-            _dadUnhappy += 0.02f;
+            //This stacks over time!
+            _dadUnhappy += approvalDecrease;
             dadApprovalRating -= _dadUnhappy;
         }
 

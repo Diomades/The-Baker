@@ -26,7 +26,11 @@ public class SceneSwapper : MonoBehaviour {
     {
         if (Input.GetKeyUp("escape"))
         {
-            ContinueGameMenu();
+            //Only do this if the game is actually running
+            if (gameplay.activeInHierarchy)
+            {
+                ContinueGameMenu();
+            }
         }
     }
 

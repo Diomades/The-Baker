@@ -4444,6 +4444,8 @@ MonoBehaviour:
   weekLengthInSeconds: 5
   startHappiness: 0.5
   happinessThreshold: 0.65
+  approvalIncrease: 0.04
+  approvalDecrease: 0.02
   panicThreshold: 0.3
   craigApprovalRating: 0.5
   dadApprovalRating: 0.8
