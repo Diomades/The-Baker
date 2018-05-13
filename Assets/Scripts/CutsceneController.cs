@@ -105,14 +105,14 @@ public class CutsceneController : MonoBehaviour {
         }
         else
         {
-            //There's no more text to show, so skip to the next appropriate scene
-            if (isStartScene)
+            //We're done with this cutscene. If the cutscene is an end scene, show the Menu button instead of the Continue button
+            if (isEndScene)
             {
-                _cutsceneManager.ShowContinueButton();
+                _cutsceneManager.ShowMenuButton();
             }
             else
             {
-                _cutsceneManager.SceneEnded();
+                _cutsceneManager.ShowContinueButton();
             }
         }
     }

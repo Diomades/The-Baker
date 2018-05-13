@@ -169,10 +169,15 @@ public class MainLoop : MonoBehaviour {
         if (charCont.CurrentState == CharState.Pie)
         {
             //We made a pie, so tell the Interface Manager to show one
-            intMan.MakeNewItem(false);
-            //Increase and reset Dad's approval
-            dadApprovalRating += approvalIncrease;
-            _dadUnhappy = 0f;
+            intMan.MakeNewItem(false);            
+            //Decrease lingering unhappiness over time
+            _dadUnhappy -= approvalDecrease;
+            if(_dadUnhappy < 0)
+            {
+                _dadUnhappy = 0;
+            }
+            //Increase dad's approval, offset by his unhappiness
+            dadApprovalRating += (approvalIncrease + _dadUnhappy);
             //Begin decreasing Craig's happiness and approval
             //This stacks over time!
             _craigUnhappy += approvalDecrease;
@@ -182,9 +187,14 @@ public class MainLoop : MonoBehaviour {
         {
             //We made a pie, so tell the Interface Manager to show one
             intMan.MakeNewItem(true);
+            //Decrease lingering unhappiness over time
+            _craigUnhappy -= approvalDecrease;
+            if (_craigUnhappy < 0)
+            {
+                _craigUnhappy = 0;
+            }
             //Increase and reset Craig's approval
-            craigApprovalRating += approvalIncrease;
-            _craigUnhappy = 0f;
+            craigApprovalRating += (approvalIncrease + _craigUnhappy);
             //Begin decreasing Dad's happiness and approval
             //This stacks over time!
             _dadUnhappy += approvalDecrease;

@@ -72,23 +72,15 @@ public class CutsceneManager : MonoBehaviour {
         }
         else
         {
-            //If it's a mid scene, continue gameplay
-            if (_curActiveScene == midCutscene1 || _curActiveScene == midCutscene2)
-            {
-                ContinueGameplay();
-            }
-            //If it's a start cutscene, go to the gameplay
-            else
-            {
-                GoToGameplay();
-                _curStartScene = 0;
-            }
+            _curActiveScene.UnloadCutscene();
+            ContinueGameplay();
         }        
     }
 
     //The Menu button goes back to the menu and unloads the gameplay
     public void MenuButton()
     {
+        _curActiveScene.UnloadCutscene();
         sceneSwapper.NewGameMenu();
     }
 
@@ -98,6 +90,7 @@ public class CutsceneManager : MonoBehaviour {
         {
             //We've not got anymore scenes to do and can unload it
             _curStartScene = 0;
+            _curActiveScene.UnloadCutscene();
             GoToGameplay();
         }
         else
@@ -159,12 +152,6 @@ public class CutsceneManager : MonoBehaviour {
 
         //Launch the selected scene
         _curActiveScene.StartCutscene(this);
-    }
-
-    //Our scene ended, so pass along a command to change the text appropriately
-    public void SceneEnded()
-    {
-        //sceneSwapper.EndCutscene();
     }
 
     public void ShowMenuButton()
