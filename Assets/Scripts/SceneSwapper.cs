@@ -33,7 +33,7 @@ public class SceneSwapper : MonoBehaviour {
         cutscenes.SetActive(false);
         gameUI.SetActive(true);
         gameplay.SetActive(true);
-        gameplay.GetComponent<MainLoop>().StartGame();
+        gameplay.GetComponent<MainLoop>().StartGame(this.GetComponent<Camera>());
     }
 
     public void ContinueGame()
