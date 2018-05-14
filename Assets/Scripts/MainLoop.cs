@@ -117,7 +117,7 @@ public class MainLoop : MonoBehaviour {
                 {
                     intMan.ShowWarning(WarningText.Happiness);
                 }
-                else
+                else if (_curHappiness <= 0f)
                 {
                     //Sadness game over
                     StopForScene(SceneID.Sad);
@@ -259,7 +259,7 @@ public class MainLoop : MonoBehaviour {
             {
                 //I wanted Cake but I got Pie
                 intMan.ShowWarning(WarningText.Pie);
-                _happinessMod = -0.05f - ((1f - _curDesire) / 20f);
+                _happinessMod = -0.05f - ((1f - _curDesire) / 10f);
             }
         }
         else if (charCont.CurrentState == CharState.Cake)
@@ -280,12 +280,12 @@ public class MainLoop : MonoBehaviour {
             {
                 //I wanted Pie but I got Cake
                 intMan.ShowWarning(WarningText.Cake);
-                _happinessMod = -0.05f - (_curDesire / 20f);
+                _happinessMod = -0.05f - (_curDesire / 10f);
             }
         }
         else
         {
-            _happinessMod = -0.1f;
+            _happinessMod = -0.15f;
         }
 
         //Go on to randomizing our new desires
@@ -295,12 +295,14 @@ public class MainLoop : MonoBehaviour {
     private void UpdateHappiness()
     {
         //If approval is too low, we become unhappy
-        if (dadApprovalRating <= 0.2f || craigApprovalRating <= 0.2f)
+        if (dadApprovalRating < approvalNeutralThreshold || craigApprovalRating < approvalNeutralThreshold)
         {
-            _happinessMod = -0.1f;
+            _happinessMod = -0.15f;
         }
 
+        //Modify our happiness
         _curHappiness += _happinessMod;
+
         //If we're happy now but weren't before
         if(_curHappiness >= 0.6f && !_isHappy)
         {

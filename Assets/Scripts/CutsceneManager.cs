@@ -31,6 +31,8 @@ public class CutsceneManager : MonoBehaviour {
 
     public void StartManager()
     {
+        _curStartScene = 0;
+        _startCutscenes.Clear();
         //Add the Start Cutscenes to a list
         _startCutscenes.Add(startCutscene1);
         _startCutscenes.Add(startCutscene2);
@@ -88,8 +90,8 @@ public class CutsceneManager : MonoBehaviour {
     {
         if (_curStartScene >= _startCutscenes.Count)
         {
+            Debug.Log("BAM");
             //We've not got anymore scenes to do and can unload it
-            _curStartScene = 0;
             _curActiveScene.UnloadCutscene();
             GoToGameplay();
         }
@@ -107,7 +109,7 @@ public class CutsceneManager : MonoBehaviour {
     public void DisplayCutscene(SceneID scene)
     {
         //We create this variable to modify and send on later
-        //bool isEndScene = false;
+        sceneSwapper.ToggleEnding(scene);
 
         //Choose which Cutscene is going to play
         switch (scene)

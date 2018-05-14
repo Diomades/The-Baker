@@ -27,6 +27,7 @@ public class CutsceneController : MonoBehaviour {
 
     public void StartCutscene(CutsceneManager man)
     {
+        _nextText = 0;
         this.gameObject.SetActive(true);
         _cutsceneManager = man;
 
@@ -66,7 +67,6 @@ public class CutsceneController : MonoBehaviour {
 
     public void UnloadCutscene()
     {
-        _nextText = 0;
         foreach (Transform child in transform)
         {
             child.gameObject.SetActive(false);
