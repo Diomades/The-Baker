@@ -4817,11 +4817,11 @@ MonoBehaviour:
   weekLengthInSeconds: 5
   startHappiness: 0.5
   happinessThreshold: 0.65
-  approvalIncrease: 0.06
-  approvalDecrease: 0.06
+  approvalIncrease: 0.07
+  approvalDecrease: 0.05
   panicThreshold: 0.3
-  craigApprovalRating: 0.5
-  dadApprovalRating: 0.8
+  craigStartingApproval: 0.45
+  dadStartingApproval: 0.75
   approvalHappyThreshold: 0.65
   approvalNeutralThreshold: 0.35
 --- !u!1 &1012325379
